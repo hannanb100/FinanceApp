@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Your Financial Plan</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2rem; color: #222; }
+        .container { max-width: 720px; margin: 0 auto; }
+        h1 { margin-bottom: 0.5rem; }
+        .summary { margin-top: 1rem; padding: 1rem; border: 1px solid #e5e7eb; border-radius: 8px; background: #f9fafb; }
+        .summary h2 { margin-top: 0; }
+        .row { margin: 0.4rem 0; }
+        .label { font-weight: bold; display: inline-block; width: 260px; }
+        a { color: #0d6efd; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .placeholder { margin-top: 1rem; padding: 1rem; border-radius: 8px; background: #fff3cd; border: 1px solid #ffe69c; color: #664d03; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Your Inputs</h1>
+    <div class="summary">
+        <div class="row"><span class="label">Financial goal:</span> <span>{{ financial_goal }}</span></div>
+        <div class="row"><span class="label">Target timeframe:</span> <span>{{ timeframe }}</span></div>
+        <div class="row"><span class="label">Current savings:</span> <span>{{ current_savings }}</span></div>
+        <div class="row"><span class="label">Monthly income:</span> <span>{{ monthly_income }}</span></div>
+        <div class="row"><span class="label">Risk tolerance:</span> <span>{{ risk_tolerance }}</span></div>
+    </div>
+
+    <div class="placeholder">Advice from AI will appear here in the next step.</div>
+
+    <p style="margin-top: 1rem;">
+        <a href="{{ url_for('index') }}">Back to form</a>
+    </p>
+</div>
+</body>
+</html>
+
