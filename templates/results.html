@@ -3,37 +3,138 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Your Financial Plan</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 2rem; color: #222; }
-        .container { max-width: 720px; margin: 0 auto; }
-        h1 { margin-bottom: 0.5rem; }
-        .summary { margin-top: 1rem; padding: 1rem; border: 1px solid #e5e7eb; border-radius: 8px; background: #f9fafb; }
-        .summary h2 { margin-top: 0; }
-        .row { margin: 0.4rem 0; }
-        .label { font-weight: bold; display: inline-block; width: 260px; }
-        a { color: #0d6efd; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-        .placeholder { margin-top: 1rem; padding: 1rem; border-radius: 8px; background: #fff3cd; border: 1px solid #ffe69c; color: #664d03; }
-    </style>
+    <title>Your Financial Plan - Financial Advisor Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 <div class="container">
-    <h1>Your Inputs</h1>
-    <div class="summary">
-        <div class="row"><span class="label">Financial goal:</span> <span>{{ financial_goal }}</span></div>
-        <div class="row"><span class="label">Target timeframe:</span> <span>{{ timeframe }}</span></div>
-        <div class="row"><span class="label">Current savings:</span> <span>{{ current_savings }}</span></div>
-        <div class="row"><span class="label">Monthly income:</span> <span>{{ monthly_income }}</span></div>
-        <div class="row"><span class="label">Risk tolerance:</span> <span>{{ risk_tolerance }}</span></div>
+    <div class="header">
+        <h1>💡 Your Financial Plan</h1>
+        <p>Personalized advice based on your financial situation</p>
     </div>
 
-    <div class="placeholder">Advice from AI will appear here in the next step.</div>
+    <!-- Summary of inputs -->
+    <div class="card">
+        <h2>📊 Your Financial Profile</h2>
+        <div class="summary-grid">
+            <div class="summary-item">
+                <div class="label">Financial Goal</div>
+                <div class="value">{{ financial_goal }}</div>
+            </div>
+            <div class="summary-item">
+                <div class="label">Timeframe</div>
+                <div class="value">{{ timeframe }} years</div>
+            </div>
+            <div class="summary-item">
+                <div class="label">Current Savings</div>
+                <div class="value">${{ current_savings }}</div>
+            </div>
+            <div class="summary-item">
+                <div class="label">Monthly Income</div>
+                <div class="value">${{ monthly_income }}</div>
+            </div>
+            <div class="summary-item">
+                <div class="label">Monthly Expenses</div>
+                <div class="value">${{ monthly_expenses }}</div>
+            </div>
+            <div class="summary-item">
+                <div class="label">Risk Tolerance</div>
+                <div class="value">{{ risk_tolerance }}</div>
+            </div>
+        </div>
+    </div>
 
-    <p style="margin-top: 1rem;">
-        <a href="{{ url_for('index') }}">Back to form</a>
-    </p>
+    <!-- Hidden data for chart -->
+    <div style="display: none;">
+        <span id="timeframeData">{{ timeframe }}</span>
+        <span id="currentSavingsData">{{ current_savings }}</span>
+        <span id="monthlyIncomeData">{{ monthly_income }}</span>
+        <span id="monthlyExpensesData">{{ monthly_expenses }}</span>
+        <span id="financialGoalData">{{ financial_goal }}</span>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="main-content-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+        <!-- Left Column: Chart -->
+        <div class="chart-container">
+            <h2>📈 Financial Growth & Milestones</h2>
+            <p class="text-muted mb-3">Investment growth and key financial targets over {{ timeframe }} years</p>
+            <div style="position: relative; height: 350px; width: 100%;">
+                <canvas id="growthChart"></canvas>
+            </div>
+            
+            <!-- Chart Insights -->
+            <div id="chart-insights" style="margin-top: 1.5rem; padding: 1rem; background: var(--background-alt); border-radius: var(--border-radius); border: 1px solid var(--border-color);">
+                <h3 style="font-size: 1rem; margin-bottom: 0.75rem; color: var(--text-primary);">💡 Key Insights</h3>
+                <div id="insights-content" style="font-size: 0.9rem; color: var(--text-secondary);">
+                    <div>📊 <strong>Emergency Fund:</strong> <span id="emergency-fund-status">Calculating...</span></div>
+                    <div>💰 <strong>Monthly Savings:</strong> <span id="monthly-savings-amount">Calculating...</span></div>
+                    <div>🎯 <strong>Growth Potential:</strong> <span id="growth-potential">Calculating...</span></div>
+                </div>
+                
+                <!-- Goal Information -->
+                <div id="goal-info" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                    <div class="insight-item">🎯 <strong>Financial Goal:</strong> Calculating...</div>
+                    <div class="insight-item">💰 <strong>Target Amount:</strong> Calculating...</div>
+                    <div class="insight-item">📊 <strong>Progress:</strong> Calculating...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Financial Advice -->
+        <div>
+            {% if advice_list %}
+                <div class="card" style="margin-bottom: 0;">
+                    <h2>💡 Financial Advice</h2>
+                    <p class="text-muted mb-3" id="advice-source">Loading recommendations...</p>
+                    
+                    <!-- Status indicator -->
+                    <div id="advice-status" style="margin-bottom: 1rem; padding: 0.75rem; border-radius: 8px; font-size: 0.9rem; display: none;">
+                        <span id="status-icon">⏳</span>
+                        <span id="status-text">Analyzing your financial situation...</span>
+                    </div>
+                    
+                    {% for advice in advice_list %}
+                        <div class="advice-card" style="margin-bottom: 1rem; padding: 1.5rem;">
+                            <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">📋 {{ advice.recommendation }}</h3>
+                            <div class="advice-section">
+                                <strong style="font-size: 0.9rem;">💭 Explanation:</strong>
+                                <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">{{ advice.explanation }}</p>
+                            </div>
+                            <div class="advice-section">
+                                <strong style="font-size: 0.9rem;">📈 Growth Projection:</strong>
+                                <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">{{ advice.growth_projection }}</p>
+                            </div>
+                            <div class="advice-section">
+                                <strong style="font-size: 0.9rem;">⚠️ Risks:</strong>
+                                <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">{{ advice.risks }}</p>
+                            </div>
+                            <button class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.85rem;" onclick="copyAdviceToClipboard('{{ advice.recommendation }}: {{ advice.explanation }}')">
+                                📋 Copy
+                            </button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="card">
+                    <div class="alert alert-warning">
+                        <strong>⚠️ No AI Advice Available</strong><br>
+                        The AI analysis is temporarily unavailable.
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navigation">
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">← Back to Form</a>
+        <button class="btn btn-success" onclick="window.print()">🖨️ Print Report</button>
+    </div>
 </div>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 </html>
 
